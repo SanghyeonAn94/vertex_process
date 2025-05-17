@@ -9,8 +9,8 @@ class VertexProcessor(nn.Module):
         # Input shapes:  
         # vertices_a: (batch_size, 10475, 3)  
         # vertices_b: (batch_size, 10475, 3)  
-        # scale: (batch_size,)  
-        
+        # scale: (batch_size, 1)  
+        batch_size = vertices_a.shape[0]
         # 1. Sum the vertices  
         summed_vertices = vertices_a + vertices_b  
         
@@ -27,8 +27,10 @@ class VertexProcessor(nn.Module):
         # 4. Find maximum points  
         max_points = torch.max(shifted_vertices, dim=1)[0]  # (batch_size, 3)  
         
-        # 5. Sum the maximum points and divide by scale  
-        result = torch.sum(max_points, dim=1) / scale  
+        # 5. Sum the maximum points and divide by scale
+        # Assuming scale is a tensor of shape (batch_size, 1)
+        # Result shape: (batch_size, 1)  
+        result = torch.sum(max_points, dim=1) / scale.squeeze(1)  
         
         return result
         
@@ -41,13 +43,13 @@ def create_and_test_model():
     batch_size = 2  
     vertices_a = torch.randn(batch_size, 10475, 3)  
     vertices_b = torch.randn(batch_size, 10475, 3)  
-    scale = torch.tensor([2.0, 3.0])  
+    scale = torch.tensor([2.0, 3.0]).reshape(batch_size, 1) 
     
     # ONNX 내보내기  
     torch.onnx.export(  
         model,  
         (vertices_a, vertices_b, scale),  
-        r"D:\Creadto\CreadtoLibrary\example\vertex_processor.onnx",
+        r"./vertex_processor.onnx",
         input_names=['vertices_a', 'vertices_b', 'scale'],  
         output_names=['output'],  
         dynamic_axes={  
@@ -56,7 +58,7 @@ def create_and_test_model():
             'scale': {0: 'batch_size'},  
             'output': {0: 'batch_size'}  
         },  
-        opset_version=11  
+        opset_version=17  
     )  
     
     # 테스트 실행  
