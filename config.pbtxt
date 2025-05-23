@@ -22,8 +22,13 @@ input [
 
 output [
   {
-    name: "output"
+    name: "eye"
     data_type: TYPE_FP32
-    dims: [ 1 ]  # 결과는 배치 크기만 포함
+    dims: [ 1 ]  # eye 출력은 배치 크기와 1차원 벡터
+  },
+  {
+    name: "others"
+    data_type: TYPE_FP32
+    dims: [ 1 ]  # others 출력은 배치 크기와 1차원 벡터
   }
 ]

@@ -5,7 +5,7 @@ class VertexProcessor(nn.Module):
     def __init__(self):
         super(VertexProcessor, self).__init__()
 
-    def forward(self, vertices_a: torch.Tensor, vertices_b: torch.Tensor, scale: torch.Tensor) -> torch.Tensor:  
+    def forward(self, vertices_a: torch.Tensor, vertices_b: torch.Tensor, scale: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:  
         # Input shapes:  
         # vertices_a: (batch_size, 10475, 3)  
         # vertices_b: (batch_size, 10475, 3)  
@@ -31,9 +31,10 @@ class VertexProcessor(nn.Module):
         # Assuming scale is a tensor of shape (batch_size, 1)
         # Result shape: (batch_size, 1)  
         result = torch.sum(max_points, dim=1) / scale.squeeze(1)  
-        
-        return result.unsqueeze(dim=1)
-        
+        pivot = result.unsqueeze(dim=1)
+        others = pivot * (torch.rand(batch_size, 1) * 4.99998 + 0.00001)
+        return pivot, others
+
 def create_and_test_model():
     # 모델 인스턴스 생성
     model = VertexProcessor()
@@ -49,23 +50,26 @@ def create_and_test_model():
     torch.onnx.export(  
         model,  
         (vertices_a, vertices_b, scale),  
-        r"./vertex_processor.onnx",
+        "./vertex_processor.onnx",
         input_names=['vertices_a', 'vertices_b', 'scale'],  
-        output_names=['output'],  
+        output_names=['eye', 'others'],  
         dynamic_axes={  
             'vertices_a': {0: 'batch_size'},  
             'vertices_b': {0: 'batch_size'},  
             'scale': {0: 'batch_size'},  
-            'output': {0: 'batch_size'}  
+            'eye': {0: 'batch_size'},
+            'others': {0: 'batch_size'}
         },  
         opset_version=17  
     )  
     
     # 테스트 실행  
     with torch.no_grad():  
-        output = model(vertices_a, vertices_b, scale)  
-        print(f"Output shape: {output.shape}")  
-        print(f"Output values: {output}")
+        eye, others = model(vertices_a, vertices_b, scale)  
+        print(f"Eye shape: {eye.shape}")
+        print(f"Eye values: {eye}")
+        print(f"Others shape: {others.shape}")
+        print(f"Others values: {others}")
 
 
 if __name__ == "__main__":
