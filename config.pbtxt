@@ -6,17 +6,17 @@ input [
   {
     name: "vertices_a"
     data_type: TYPE_FP32
-    dims: [ -1, 10475, 3 ]  # 배치 크기는 -1로 설정하여 동적 배치 크기를 허용
+    dims: [ 10475, 3 ]  # 배치 크기는 -1로 설정하여 동적 배치 크기를 허용
   },
   {
     name: "vertices_b"
     data_type: TYPE_FP32
-    dims: [ -1, 10475, 3 ]  # 배치 크기는 -1로 설정하여 동적 배치 크기를 허용
+    dims: [ 10475, 3 ]  # 배치 크기는 -1로 설정하여 동적 배치 크기를 허용
   },
   {
     name: "scale"
     data_type: TYPE_FP32
-    dims: [ -1, 1 ]  # 배치 크기만 있고, 1차원 벡터
+    dims: [ 1 ]  # 배치 크기만 있고, 1차원 벡터
   }
 ]
 
@@ -24,6 +24,6 @@ output [
   {
     name: "output"
     data_type: TYPE_FP32
-    dims: [ -1 ]  # 결과는 배치 크기만 포함
+    dims: [ 1 ]  # 결과는 배치 크기만 포함
   }
 ]

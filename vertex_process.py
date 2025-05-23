@@ -32,7 +32,7 @@ class VertexProcessor(nn.Module):
         # Result shape: (batch_size, 1)  
         result = torch.sum(max_points, dim=1) / scale.squeeze(1)  
         
-        return result
+        return result.unsqueeze(dim=1)
         
 def create_and_test_model():
     # 모델 인스턴스 생성
